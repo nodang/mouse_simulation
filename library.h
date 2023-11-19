@@ -5,7 +5,6 @@
 #include <memory.h>
 #include <windows.h>
 
-#include "maze_lib.h"
 #include "tools.h"
 
 #endif /* __LIBRARY_H */

@@ -1,32 +1,32 @@
 #include "tools.h"
 
-void queue_push(int* queue, int* q_ind, int val)
+void queue_push(QueueType* queue, int val)
 {
-	queue[(* q_ind)] = val;
-	(* q_ind)++;
+	queue->arr[queue->ind] = val;
+	queue->ind++;
 }
 
-int queue_pop(int* queue, int* q_ind)
+int queue_pop(QueueType* queue)
 {
-	int rtn = queue[0];
+	int cnt, rtn = queue->arr[0];
 
-	if ((* q_ind) >= 0)
+	if (queue->ind >= 0)
 	{
-		if ((* q_ind) > 2)
+		if (queue->ind > 2)
 		{
-			for (int cnt = 0; cnt < (* q_ind) - 1; cnt++)
-				queue[cnt] = queue[cnt + 1];
-			queue[(* q_ind) - 1] = 0;
+			for (cnt = 0; cnt < queue->ind - 1; cnt++)
+				queue->arr[cnt] = queue->arr[cnt + 1];
+			queue->arr[queue->ind - 1] = 0;
 		}
-		else if ((* q_ind) == 2)
+		else if (queue->ind == 2)
 		{
-			queue[0] = queue[1];
-			queue[1] = 0;
+			queue->arr[0] = queue->arr[1];
+			queue->arr[1] = 0;
 		}
-		else if ((* q_ind) == 1)
-			queue[0] = 0;
+		else if (queue->ind == 1)
+			queue->arr[0] = 0;
 
-		(* q_ind)--;
+		queue->ind--;
 	}
 
 	return rtn;
@@ -37,20 +37,22 @@ int queue_pop(int* queue, int* q_ind)
 // 3. 만약 삽입할 원소 item이 부모 노드보다 크면, 부모 노드와 자식 노드의 자리를 바꾸어 최대 히프의 관계를 만들어야 하므로 부모 노드 heap[i/2]를 현재의 삽입 위치 heap[i]에 저장한다.
 // 4. i/2를 삽입 위치 i로 하고 2~4를 반복하면서 item을 삽입할 위치를 찾는다. 
 // 5. 찾은 위치에서 삽입할 노드 item을 저장하면 최대 히프의 재구성 작업이 완성되므로 삽입 연산을 종료한다. 
-void heap_push(HeapType* h, int item)
+void heap_push(HeapType* h, int node, int item)
 {
 	h->heap_size++;
 	int i = h->heap_size;
 
-	while ((i != 1) && (item > h->heap[i >> 1]))
+	while ((i != 1) && (item < h->cost[i >> 1]))
 	{
-		h->heap[i] = h->heap[i >> 1];
+		h->cost[i] = h->cost[i >> 1];
+		h->node[i] = h->node[i >> 1];
 		i >>= 1;
 	}
-	h->heap[i] = item;
+	h->cost[i] = item;
+	h->node[i] = node;
 }
 
-//1,루트 노드 heap[1]을 itemp 에 저장하고.
+//1. 루트 노드 heap[1]을 itemp 에 저장하고.
 //2. 마지막 노드의 원소 heap[h->heap_size]를 temp에 임시 저장한 후에 
 //3. 전체 노드의 개수가 줄어든 히프가 되도록 하기 위하여 노드의 개수를 1 감소시킨다.
 //4. 마지막 노드의 원소였던 temp의 임시 저장 위치 parent는 루트 노드 자리인 1번이 된다.
@@ -60,22 +62,25 @@ void heap_push(HeapType* h, int item)
 int heap_pop(HeapType* h)
 {
 	int parent = 1, child = 2;
-	int item = h->heap[1], temp = h->heap[h->heap_size];
+	int node = h->node[1];
+	int temp_c = h->cost[h->heap_size], temp_n = h->node[h->heap_size];
 
 	h->heap_size--;
 	while (child <= h->heap_size)
 	{
-		if ((child < h->heap_size) && (h->heap[child]) < h->heap[child + 1])
+		if ((child < h->heap_size) && (h->cost[child]) > h->cost[child + 1])
 			child++;
 
-		if (temp >= h->heap[child]) 
+		if (temp_c <= h->cost[child])
 			break;
 
-		h->heap[parent] = h->heap[child];
+		h->cost[parent] = h->cost[child];
+		h->node[parent] = h->node[child];
 		parent = child;
 		child <<= 1;
 	}
-	h->heap[parent] = temp;
+	h->cost[parent] = temp_c;
+	h->node[parent] = temp_n;
 
-	return item;
+	return node;
 }

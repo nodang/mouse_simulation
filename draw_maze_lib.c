@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <windows.h>
 
-#include "maze_lib.h"
+#include "library.h"
+#include "draw_maze_lib.h"
 
 #define ORIGIN_WALL	    '*'
 #define ORIGIN_EMPTY    '.'
@@ -39,7 +40,7 @@ do {																		\
 	DRAW_WALL2(map_data.bit.west,  y,     x - 1, kwt, kwf);			        \
 } while( 0 );
 
-char enable_empty_wall = TRUE;
+static int enable_empty_wall;
 
 static void _goto_xy(int x, int y)
 {
@@ -49,23 +50,10 @@ static void _goto_xy(int x, int y)
     SetConsoleCursorPosition(handle, pos);
 }
 
-void init_map(Map* map)
+void init_showing_map(int flag, char showing_map[33][33], Map* origin_map)
 {
-    // init_map about side wall
-    for (int i = 0; i < MAP_SIZE; i++)
-    {
-        // y
-        if ((i & 0x0f) == 0x0f)			map[i].all |= NORTH;
-        else if ((i & 0x0f) == 0x00)	map[i].all |= SOUTH;
+    enable_empty_wall = flag;
 
-        // x
-        if ((i & 0xf0) == 0xf0)			map[i].all |= EAST;
-        else if ((i & 0xf0) == 0x00)	map[i].all |= WEST;
-    }
-}
-
-void init_showing_map(char showing_map[33][33], Map* origin_map)
-{
     for (int x = 0; x < 33; x++)
         for (int y = 0; y < 33; y++)
         {
@@ -83,41 +71,7 @@ void init_showing_map(char showing_map[33][33], Map* origin_map)
         }
 }
 
-void move_robot(Map* origin_map, Map* map, int* visit, Robot* robot, char mp, char dir)
-{
-    int ind = FIND_MAP_INDEX(robot->pos.x, robot->pos.y);
-
-    switch (dir)
-    {
-    case NORTH:
-        if (map[ind].bit.north || robot->pos.y + mp >= SIDE);
-        else
-            robot->pos.y += mp;
-        break;
-    case EAST:
-        if (map[ind].bit.east || robot->pos.x + mp >= SIDE);
-        else
-            robot->pos.x += mp;
-        break;
-    case SOUTH:
-        if (map[ind].bit.south || robot->pos.y - mp < 0);
-        else
-            robot->pos.y -= mp;
-        break;
-    case WEST:
-        if (map[ind].bit.west || robot->pos.x - mp < 0);
-        else
-            robot->pos.x -= mp;
-        break;
-    };
-
-    ind = FIND_MAP_INDEX(robot->pos.x, robot->pos.y);
-    visit[ind] = 1;
-    map[ind].all = origin_map[ind].all;
-}
-
-void update_showing_map(
-    char showing_map[33][33], Map* map, int* visit, int* cost_fn, Robot* robot)
+void update_showing_map(char showing_map[33][33], Map* map, int* visit, int* cost_fn, Robot* robot)
 {
     _goto_xy(0, 0);
     //system("cls");
@@ -131,7 +85,8 @@ void update_showing_map(
                 if (enable_empty_wall)	showing_map[y][x] = FOUND_EMPTY;
                 else					showing_map[y][x] = cost_fn[ind];
 
-                if (robot->pos.x == (x / 2) && robot->pos.y == (y / 2))
+                if (FIND_X_FROM_INDEX(robot->pos) == (x / 2) &&
+                    FIND_Y_FROM_INDEX(robot->pos) == (y / 2)    )
                 {
                     switch (robot->dir)
                     {
@@ -147,6 +102,8 @@ void update_showing_map(
                     case WEST:
                         showing_map[y][x] = '<';
                         break;
+                    default:
+                        printf("program failed\n");
                     }
                 }
 
@@ -165,12 +122,11 @@ void update_showing_map(
             }
 }
 
-void draw_showing_map(
-    char showing_map[33][33], int* visit, Robot* robot, int* path)
+void draw_showing_map(char showing_map[33][33], int* visit, Robot* robot, QueueType* path)
 {
     int path_check[MAP_SIZE] = { 0, };
-    for (int i = 0; path[i] != -1 && i < MAP_SIZE; i++)
-        path_check[path[i]] = 1;
+    for (int i = 0; i < path->ind; i++)
+        path_check[path->arr[i]] = 1;
 
     printf("\033[0m");
     for (int y = 32; y >= 0; y--)
@@ -188,7 +144,8 @@ void draw_showing_map(
             {
                 if (x % 2 == 1 && y % 2 == 1)
                 {
-                    if (robot->pos.x == (x / 2) && robot->pos.y == (y / 2))
+                    if (FIND_X_FROM_INDEX(robot->pos) == (x / 2) &&
+                        FIND_Y_FROM_INDEX(robot->pos) == (y / 2)    )
                         printf("\033[0;33m");
                     else if (path_check[FIND_MAP_INDEX(x / 2, y / 2)])
                         printf("\033[0;31m");
@@ -197,7 +154,8 @@ void draw_showing_map(
                     else
                         printf("\033[0;32m");
 
-                    if (robot->pos.x == (x / 2) && robot->pos.y == (y / 2))
+                    if (FIND_X_FROM_INDEX(robot->pos) == (x / 2) &&
+                        FIND_Y_FROM_INDEX(robot->pos) == (y / 2))
                         printf(" %c ", showing_map[y][x]);
                     else
                         printf("%3d", showing_map[y][x]);
