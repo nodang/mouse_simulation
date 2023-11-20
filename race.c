@@ -3,36 +3,21 @@
 #include "algorithm.h"
 #include "race.h"
 
-#define DRAW_DELAY	25
+#define DRAW_DELAY	100
 
-void init_map(Map* map)
-{
-	// init_map about side wall
-	for (int i = 0; i < MAP_SIZE; i++)
-	{
-		// y
-		if ((i & 0x0f) == 0x0f)			map[i].all |= NORTH;
-		else if ((i & 0x0f) == 0x00)	map[i].all |= SOUTH;
-
-		// x
-		if ((i & 0xf0) == 0xf0)			map[i].all |= EAST;
-		else if ((i & 0xf0) == 0x00)	map[i].all |= WEST;
-	}
-}
-
-void visit_then_update_map(Map* map, unsigned char detected_wall, int* visit, Robot* current)
+static void _visit_then_update_map(Map* map, unsigned char detected_wall, int* visit, Robot* current)
 {
 	// visit and update the map
 	visit[current->pos] = 1;
 	map[current->pos].all = detected_wall;
 }
 
-void to_move_if_possible(Map* map, Robot* current, Robot* next)
+static unsigned char _to_move_if_possible(Map* map, Robot* current, QueueType* path)
 {
 	// decide direction from position difference
-	char pos_diff = next->pos - current->pos;
+	char pos_diff = path->arr[0] - current->pos;
 
-	char should_go_dir = 0;
+	char should_go_dir = 0xf;
 	if (pos_diff == 0x01)	should_go_dir = NORTH;
 	if (pos_diff == 0x10)	should_go_dir = EAST;
 	if (pos_diff == -0x01)	should_go_dir = SOUTH;
@@ -49,8 +34,27 @@ void to_move_if_possible(Map* map, Robot* current, Robot* next)
 		// if not, move the next position
 		else
 		{
-			current->pos = next->pos;
+			current->pos = queue_pop(path);
 		}
+
+		return TRUE;
+	}
+	else
+		return FALSE;
+}
+
+void init_map(Map* map)
+{
+	// init_map about side wall
+	for (int i = 0; i < MAP_SIZE; i++)
+	{
+		// y
+		if ((i & 0x0f) == 0x0f)			map[i].all |= NORTH;
+		else if ((i & 0x0f) == 0x00)	map[i].all |= SOUTH;
+
+		// x
+		if ((i & 0xf0) == 0xf0)			map[i].all |= EAST;
+		else if ((i & 0xf0) == 0x00)	map[i].all |= WEST;
 	}
 }
 
@@ -69,7 +73,7 @@ void search_race(Map* origin_map, Map* map, int* visit, int* cost_fn, Robot* rob
 	{
 		// 센서값으로 벽 정보 읽기
 		unsigned char sensor_data = origin_map[robot->pos].all;
-		visit_then_update_map(map, sensor_data, visit, robot);
+		_visit_then_update_map(map, sensor_data, visit, robot);
 
 		// 종료 확인
 		if (reached_goal(robot))
@@ -77,9 +81,11 @@ void search_race(Map* origin_map, Map* map, int* visit, int* cost_fn, Robot* rob
 			draw_the_figure(map, visit, cost_fn, robot, path, DRAW_DELAY);
 			break;
 		}
-		else
+		else if (path->ind == 0)
+		{
 			// 현재 위치에서 비용 계산 및 경로 계획
 			calculate_cost_to_goal(map, cost_fn, robot, path);
+		}
 
 		// Functions related to drawing
 		draw_the_figure(map, visit, cost_fn, robot, path, DRAW_DELAY);
@@ -87,8 +93,8 @@ void search_race(Map* origin_map, Map* map, int* visit, int* cost_fn, Robot* rob
 		// 이동
 		if (path->ind > 0)
 		{
-			Robot next_mouse = { queue_pop(path), 0 };
-			to_move_if_possible(map, robot, &next_mouse);
+			if (!_to_move_if_possible(map, robot, path))
+				path->ind = 0;
 		}
 	}
 
@@ -97,7 +103,7 @@ void search_race(Map* origin_map, Map* map, int* visit, int* cost_fn, Robot* rob
 	{
 		// 센서값으로 벽 정보 읽기
 		unsigned char sensor_data = origin_map[robot->pos].all;
-		visit_then_update_map(map, sensor_data, visit, robot);
+		_visit_then_update_map(map, sensor_data, visit, robot);
 
 		// 종료 확인
 		if (reached_home(robot))
@@ -105,9 +111,11 @@ void search_race(Map* origin_map, Map* map, int* visit, int* cost_fn, Robot* rob
 			draw_the_figure(map, visit, cost_fn, robot, path, DRAW_DELAY);
 			break;
 		}
-		else
+		else if (path->ind == 0)
+		{
 			// 현재 위치에서 비용 계산 및 경로 계획
 			calculate_cost_to_home(map, cost_fn, robot, path);
+		}
 
 		// Functions related to drawing
 		draw_the_figure(map, visit, cost_fn, robot, path, DRAW_DELAY);
@@ -115,8 +123,8 @@ void search_race(Map* origin_map, Map* map, int* visit, int* cost_fn, Robot* rob
 		// 이동
 		if (path->ind > 0)
 		{
-			Robot next_mouse = { queue_pop(path), 0 };
-			to_move_if_possible(map, robot, &next_mouse);
+			if (!_to_move_if_possible(map, robot, path))
+				path->ind = 0;
 		}
 	}
 

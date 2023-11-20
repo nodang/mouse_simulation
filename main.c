@@ -3,6 +3,8 @@
 #include "main.h"
 #include "race.h"
 
+#define ROUNDS	3
+
 int main(int argc, char* argv[])
 {
 	Map origin_map[MAP_SIZE], map[MAP_SIZE];
@@ -20,12 +22,9 @@ int main(int argc, char* argv[])
 
 	init_map(map);
 
-	int round = 3, cnt = 0;
-
-	while (cnt < round)
+	for (int i = 0; i < ROUNDS; i++)
 	{
 		search_race(origin_map, map, visit, cost_fn, &mouse, &path);
-		cnt++;
 	}
 
 	fclose(fp);

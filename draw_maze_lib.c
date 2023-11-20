@@ -41,7 +41,7 @@ do {																		\
 } while( 0 );
 
 static int enable_empty_wall;
-static char showing_map[33][33];
+static char showing_map[33][33], path_check[MAP_SIZE];
 
 static void _goto_xy(int x, int y)
 {
@@ -104,7 +104,8 @@ static void _update_showing_map(Map* map, int* visit, int* cost_fn, Robot* robot
 
 static void _draw_showing_map(int* visit, Robot* robot, QueueType* path)
 {
-    int path_check[MAP_SIZE] = { 0, };
+    memset(path_check, 0, sizeof(int) * MAP_SIZE);
+
     for (int i = 0; i < path->ind; i++)
         path_check[path->arr[i]] = 1;
 
