@@ -17,8 +17,7 @@
 #ifndef __MAZE_LIB_H
 #define __MAZE_LIB_H
 
-extern void init_showing_map(int flag, char showing_map[33][33], Map* origin_map);
-extern void update_showing_map(char showing_map[33][33], Map* map, int* visit, int* cost_fn, Robot* robot);
-extern void draw_showing_map(char showing_map[33][33], int* visit, Robot* robot, QueueType* path);
+extern void init_showing_map(Map* origin_map, int flag);
+extern void draw_the_figure(Map* map, int* visit, int* cost_fn, Robot* robot, QueueType* path, int delay);
 
 #endif /* __MAZE_LIB_H */

@@ -41,6 +41,7 @@ do {																		\
 } while( 0 );
 
 static int enable_empty_wall;
+static char showing_map[33][33];
 
 static void _goto_xy(int x, int y)
 {
@@ -50,28 +51,7 @@ static void _goto_xy(int x, int y)
     SetConsoleCursorPosition(handle, pos);
 }
 
-void init_showing_map(int flag, char showing_map[33][33], Map* origin_map)
-{
-    enable_empty_wall = flag;
-
-    for (int x = 0; x < 33; x++)
-        for (int y = 0; y < 33; y++)
-        {
-            if (x % 2 == 1 && y % 2 == 1)
-            {
-                Map map_data = origin_map[FIND_MAP_INDEX(x / 2, y / 2)];
-
-                DRAW_WALL1(x, y, ORIGIN_WALL, ORIGIN_EMPTY);
-
-                if (enable_empty_wall)	showing_map[y][x] = FOUND_EMPTY;
-                else					showing_map[y][x] = 0;
-            }
-            else if (x % 2 == 0 && y % 2 == 0)
-                showing_map[y][x] = FOUND_WALL;
-        }
-}
-
-void update_showing_map(char showing_map[33][33], Map* map, int* visit, int* cost_fn, Robot* robot)
+static void _update_showing_map(Map* map, int* visit, int* cost_fn, Robot* robot)
 {
     _goto_xy(0, 0);
     //system("cls");
@@ -86,7 +66,7 @@ void update_showing_map(char showing_map[33][33], Map* map, int* visit, int* cos
                 else					showing_map[y][x] = cost_fn[ind];
 
                 if (FIND_X_FROM_INDEX(robot->pos) == (x / 2) &&
-                    FIND_Y_FROM_INDEX(robot->pos) == (y / 2)    )
+                    FIND_Y_FROM_INDEX(robot->pos) == (y / 2))
                 {
                     switch (robot->dir)
                     {
@@ -122,7 +102,7 @@ void update_showing_map(char showing_map[33][33], Map* map, int* visit, int* cos
             }
 }
 
-void draw_showing_map(char showing_map[33][33], int* visit, Robot* robot, QueueType* path)
+static void _draw_showing_map(int* visit, Robot* robot, QueueType* path)
 {
     int path_check[MAP_SIZE] = { 0, };
     for (int i = 0; i < path->ind; i++)
@@ -145,7 +125,7 @@ void draw_showing_map(char showing_map[33][33], int* visit, Robot* robot, QueueT
                 if (x % 2 == 1 && y % 2 == 1)
                 {
                     if (FIND_X_FROM_INDEX(robot->pos) == (x / 2) &&
-                        FIND_Y_FROM_INDEX(robot->pos) == (y / 2)    )
+                        FIND_Y_FROM_INDEX(robot->pos) == (y / 2))
                         printf("\033[0;33m");
                     else if (path_check[FIND_MAP_INDEX(x / 2, y / 2)])
                         printf("\033[0;31m");
@@ -171,4 +151,33 @@ void draw_showing_map(char showing_map[33][33], int* visit, Robot* robot, QueueT
         }
         printf("\n");
     }
+}
+
+void init_showing_map(Map* origin_map, int flag)
+{
+    enable_empty_wall = flag;
+    memset(showing_map, 0, sizeof(showing_map));
+
+    for (int x = 0; x < 33; x++)
+        for (int y = 0; y < 33; y++)
+        {
+            if (x % 2 == 1 && y % 2 == 1)
+            {
+                Map map_data = origin_map[FIND_MAP_INDEX(x / 2, y / 2)];
+
+                DRAW_WALL1(x, y, ORIGIN_WALL, ORIGIN_EMPTY);
+
+                if (enable_empty_wall)	showing_map[y][x] = FOUND_EMPTY;
+                else					showing_map[y][x] = 0;
+            }
+            else if (x % 2 == 0 && y % 2 == 0)
+                showing_map[y][x] = FOUND_WALL;
+        }
+}
+
+void draw_the_figure(Map* map, int* visit, int* cost_fn, Robot* robot, QueueType* path, int delay)
+{
+    _update_showing_map(map, visit, cost_fn, robot);
+    _draw_showing_map(visit, robot, path);
+    Sleep(delay);
 }
