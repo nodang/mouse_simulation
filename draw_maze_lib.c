@@ -41,7 +41,7 @@ do {																		\
 } while( 0 );
 
 static int enable_empty_wall;
-static char showing_map[33][33], path_check[MAP_SIZE];
+static char showing_map[33][33], path_check[MAP_SIZE], check_dests[33][33];
 
 static void _goto_xy(int x, int y)
 {
@@ -104,7 +104,7 @@ static void _update_showing_map(Map* map, int* visit, int* cost_fn, Robot* robot
 
 static void _draw_showing_map(int* visit, Robot* robot, QueueType* path)
 {
-    memset(path_check, 0, sizeof(int) * MAP_SIZE);
+    memset(path_check, 0, sizeof(path_check));
 
     for (int i = 0; i < path->ind; i++)
         path_check[path->arr[i]] = 1;
@@ -131,9 +131,10 @@ static void _draw_showing_map(int* visit, Robot* robot, QueueType* path)
                     else if (path_check[FIND_MAP_INDEX(x / 2, y / 2)])
                         printf("\033[0;31m");
                     else if (visit[FIND_MAP_INDEX(x / 2, y / 2)])
-                        printf("\033[0;34m");
+                        printf("\033[0;30m");
+                        //printf("\033[0;36m");
                     else
-                        printf("\033[0;32m");
+                        printf("\033[0;36m");
 
                     if (FIND_X_FROM_INDEX(robot->pos) == (x / 2) &&
                         FIND_Y_FROM_INDEX(robot->pos) == (y / 2))
@@ -142,6 +143,9 @@ static void _draw_showing_map(int* visit, Robot* robot, QueueType* path)
                         printf("%3d", showing_map[y][x]);
                 }
                 else {
+                    if (check_dests[y][x])
+                        printf("\033[0;32m");
+
                     if (y % 2 == 0)
                         printf("%c ", showing_map[y][x]);
                     else
@@ -174,6 +178,27 @@ void init_showing_map(Map* origin_map, int flag)
             else if (x % 2 == 0 && y % 2 == 0)
                 showing_map[y][x] = FOUND_WALL;
         }
+
+    static Coord destinations[24] = {
+        // home
+        { 0, 0 }, { 1, 0 }, { 2, 0 },
+        { 2, 1 }, { 2, 2 },
+        { 1, 2 }, { 0, 2 },
+        { 0, 1 },
+        // goal
+        { 14, 14 }, { 15, 14 }, { 16, 14 }, { 17, 14 }, { 18, 14 },
+        { 18, 15 }, { 18, 16 }, { 18, 17 }, { 18, 18 },
+        { 17, 18 }, { 16, 18 }, { 15, 18 }, { 14, 18 },
+        { 14, 17 }, { 14, 16 }, { 14, 15 }
+    };
+
+    memset(check_dests, 0, sizeof(check_dests));
+
+    for (int i = 0; i < 24; i++)
+    {
+        Coord curr = destinations[i];
+        check_dests[curr.y][curr.x] = 1;
+    }
 }
 
 void draw_the_figure(Map* map, int* visit, int* cost_fn, Robot* robot, QueueType* path, int delay)

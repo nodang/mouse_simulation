@@ -3,7 +3,7 @@
 #include "algorithm.h"
 #include "race.h"
 
-#define DRAW_DELAY	100
+#define DRAW_DELAY	10
 
 static void _visit_then_update_map(Map* map, unsigned char detected_wall, int* visit, Robot* current)
 {
@@ -24,6 +24,7 @@ static unsigned char _to_move_if_possible(Map* map, Robot* current, QueueType* p
 	if (pos_diff == -0x10)	should_go_dir = WEST;
 
 	// check the possibility of movement
+	// check the possibility of path tracking
 	if ((should_go_dir & map[current->pos].all) == 0)
 	{
 		// if the directions is different, adapt direction
@@ -60,12 +61,6 @@ void init_map(Map* map)
 
 void search_race(Map* origin_map, Map* map, int* visit, int* cost_fn, Robot* robot, QueueType* path)
 {
-#if 0	// TRUE : 빈칸 출력, FALSE : 무게값 출력
-	init_showing_map(origin_map, 1);
-#else
-	init_showing_map(origin_map, 0);
-#endif
-
 	// go to the goal -> search the maze on the way home
 
 	// go to the goal
@@ -91,10 +86,11 @@ void search_race(Map* origin_map, Map* map, int* visit, int* cost_fn, Robot* rob
 		draw_the_figure(map, visit, cost_fn, robot, path, DRAW_DELAY);
 
 		// 이동
-		if (path->ind > 0)
+		while (path->ind > 0 && !_to_move_if_possible(map, robot, path))
 		{
-			if (!_to_move_if_possible(map, robot, path))
-				path->ind = 0;
+			// 이동할 공간이 없으면
+			calculate_cost_to_goal(map, cost_fn, robot, path);
+			draw_the_figure(map, visit, cost_fn, robot, path, DRAW_DELAY);
 		}
 	}
 
@@ -121,10 +117,11 @@ void search_race(Map* origin_map, Map* map, int* visit, int* cost_fn, Robot* rob
 		draw_the_figure(map, visit, cost_fn, robot, path, DRAW_DELAY);
 
 		// 이동
-		if (path->ind > 0)
+		while (path->ind > 0 && !_to_move_if_possible(map, robot, path))
 		{
-			if (!_to_move_if_possible(map, robot, path))
-				path->ind = 0;
+			// 이동할 공간이 없으면
+			calculate_cost_to_home(map, cost_fn, robot, path);
+			draw_the_figure(map, visit, cost_fn, robot, path, DRAW_DELAY);
 		}
 	}
 

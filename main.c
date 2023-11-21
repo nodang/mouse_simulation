@@ -1,6 +1,7 @@
 #pragma warning(disable: 4996)
 #include "library.h"
 #include "main.h"
+#include "draw_maze_lib.h"
 #include "race.h"
 
 #define ROUNDS	3
@@ -21,6 +22,12 @@ int main(int argc, char* argv[])
 	memset(&path, 0, sizeof(path));
 
 	init_map(map);
+
+#if 0	// TRUE : ºóÄ­ Ãâ·Â, FALSE : ¹«°Ô°ª Ãâ·Â
+	init_showing_map(origin_map, 1);
+#else
+	init_showing_map(origin_map, 0);
+#endif
 
 	for (int i = 0; i < ROUNDS; i++)
 	{
