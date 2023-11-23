@@ -1,7 +1,3 @@
-#include <conio.h>
-#include <stdio.h>
-#include <windows.h>
-
 #include "library.h"
 #include "draw_maze_lib.h"
 
@@ -40,7 +36,7 @@ White  : \033[0;37m
 do {																		\
 	if (tf)    showing_map[y][x] = kwt;										\
 	else       showing_map[y][x] = kwf;										\
-} while ( 0 );
+} while ( 0 )
 
 #define DRAW_WALL1(x, y, kwt, kwf)											\
 do {																		\
@@ -48,7 +44,7 @@ do {																		\
 	DRAW_WALL2(map_data.bit.east,  y,     x + 1, kwt, kwf);			        \
 	DRAW_WALL2(map_data.bit.south, y - 1, x,     kwt, kwf);			        \
 	DRAW_WALL2(map_data.bit.west,  y,     x - 1, kwt, kwf);			        \
-} while( 0 );
+} while ( 0 )
 
 static int enable_empty_wall;
 static char showing_map[33][33], path_check[MAP_SIZE], check_dests[33][33];
@@ -61,7 +57,7 @@ static void _goto_xy(int x, int y)
     SetConsoleCursorPosition(handle, pos);
 }
 
-static void _update_showing_map(Map* map, int* visit, int* cost_fn, Robot* robot)
+static void _update_showing_map()
 {
     _goto_xy(0, 0);
     //system("cls");
@@ -73,12 +69,12 @@ static void _update_showing_map(Map* map, int* visit, int* cost_fn, Robot* robot
                 int ind = FIND_MAP_INDEX(x / 2, y / 2);
 
                 if (enable_empty_wall)	showing_map[y][x] = FOUND_EMPTY;
-                else					showing_map[y][x] = cost_fn[ind];
+                else					showing_map[y][x] = cost[ind];
 
-                if (FIND_X_FROM_INDEX(robot->pos) == (x / 2) &&
-                    FIND_Y_FROM_INDEX(robot->pos) == (y / 2))
+                if (FIND_X_FROM_INDEX(robot.pos) == (x / 2) &&
+                    FIND_Y_FROM_INDEX(robot.pos) == (y / 2))
                 {
-                    switch (robot->dir)
+                    switch (robot.dir)
                     {
                     case NORTH:
                         showing_map[y][x] = 'A';
@@ -112,12 +108,12 @@ static void _update_showing_map(Map* map, int* visit, int* cost_fn, Robot* robot
             }
 }
 
-static void _draw_showing_map(int* visit, Robot* robot, QueueType* path)
+static void _draw_showing_map()
 {
     memset(path_check, 0, sizeof(path_check));
 
-    for (int i = 0; i < path->ind; i++)
-        path_check[path->arr[i]] = 1;
+    for (int i = 0; i < path.ind; i++)
+        path_check[path.arr[i]] = 1;
 
     SET_PRINTF_COLOR_DEFAULT;
     for (int y = 32; y >= 0; y--)
@@ -138,8 +134,8 @@ static void _draw_showing_map(int* visit, Robot* robot, QueueType* path)
             {
                 if (x % 2 == 1 && y % 2 == 1)
                 {
-                    if (FIND_X_FROM_INDEX(robot->pos) == (x / 2) &&
-                        FIND_Y_FROM_INDEX(robot->pos) == (y / 2))
+                    if (FIND_X_FROM_INDEX(robot.pos) == (x / 2) &&
+                        FIND_Y_FROM_INDEX(robot.pos) == (y / 2))
                         SET_PRINTF_COLOR_YELLOW;
                     else if (path_check[FIND_MAP_INDEX(x / 2, y / 2)])
                         SET_PRINTF_COLOR_RED;
@@ -149,8 +145,8 @@ static void _draw_showing_map(int* visit, Robot* robot, QueueType* path)
                     else
                         SET_PRINTF_COLOR_CYAN;
 
-                    if (FIND_X_FROM_INDEX(robot->pos) == (x / 2) &&
-                        FIND_Y_FROM_INDEX(robot->pos) == (y / 2))
+                    if (FIND_X_FROM_INDEX(robot.pos) == (x / 2) &&
+                        FIND_Y_FROM_INDEX(robot.pos) == (y / 2))
                         printf(" %c ", showing_map[y][x]);
                     else
                         printf("%3d",(unsigned char)showing_map[y][x]);
@@ -171,7 +167,7 @@ static void _draw_showing_map(int* visit, Robot* robot, QueueType* path)
     }
 }
 
-void init_showing_map(Map* origin_map, int flag)
+void init_showing_map(int flag)
 {
     enable_empty_wall = flag;
     memset(showing_map, 0, sizeof(showing_map));
@@ -214,9 +210,9 @@ void init_showing_map(Map* origin_map, int flag)
     }
 }
 
-void draw_the_figure(Map* map, int* visit, int* cost_fn, Robot* robot, QueueType* path, int delay)
+void draw_the_figure(int delay)
 {
-    _update_showing_map(map, visit, cost_fn, robot);
-    _draw_showing_map(visit, robot, path);
+    _update_showing_map();
+    _draw_showing_map();
     Sleep(delay);
 }
