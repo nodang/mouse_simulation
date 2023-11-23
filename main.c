@@ -4,7 +4,7 @@
 #include "draw_maze_lib.h"
 #include "race.h"
 
-#define ROUNDS	3
+#define ROUNDS	10
 
 int main(int argc, char* argv[])
 {

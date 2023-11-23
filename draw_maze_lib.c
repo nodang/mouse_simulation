@@ -10,6 +10,16 @@
 #define FOUND_WALL		'#'
 #define FOUND_EMPTY		' '
 
+#define SET_PRINTF_COLOR_DEFAULT    printf("\033[0m")
+#define SET_PRINTF_COLOR_BLACK      printf("\033[0;30m")
+#define SET_PRINTF_COLOR_RED        printf("\033[0;31m")
+#define SET_PRINTF_COLOR_GREEN      printf("\033[0;32m")
+#define SET_PRINTF_COLOR_YELLOW     printf("\033[0;33m")
+#define SET_PRINTF_COLOR_BLUE       printf("\033[0;34m")
+#define SET_PRINTF_COLOR_PURPLE     printf("\033[0;35m")
+#define SET_PRINTF_COLOR_CYAN       printf("\033[0;36m")
+#define SET_PRINTF_COLOR_WHITE      printf("\033[0;37m")
+
 /* 
 printf(¡°\033[0;31m¡±); // Set the text to the color red
 printf(¡°Hello\n¡±); // Display Hello in red
@@ -109,7 +119,7 @@ static void _draw_showing_map(int* visit, Robot* robot, QueueType* path)
     for (int i = 0; i < path->ind; i++)
         path_check[path->arr[i]] = 1;
 
-    printf("\033[0m");
+    SET_PRINTF_COLOR_DEFAULT;
     for (int y = 32; y >= 0; y--)
     {
         for (int x = 0; x <= 32; x++)
@@ -117,7 +127,10 @@ static void _draw_showing_map(int* visit, Robot* robot, QueueType* path)
             if (enable_empty_wall)
             {
                 if (x % 2 == 1 && y % 2 == 1)
-                    printf("\033[0;33m%c ", showing_map[y][x]);
+                {
+                    SET_PRINTF_COLOR_YELLOW;
+                    printf("%c ", showing_map[y][x]);
+                }
                 else
                     printf("%c ", showing_map[y][x]);
             }
@@ -127,24 +140,24 @@ static void _draw_showing_map(int* visit, Robot* robot, QueueType* path)
                 {
                     if (FIND_X_FROM_INDEX(robot->pos) == (x / 2) &&
                         FIND_Y_FROM_INDEX(robot->pos) == (y / 2))
-                        printf("\033[0;33m");
+                        SET_PRINTF_COLOR_YELLOW;
                     else if (path_check[FIND_MAP_INDEX(x / 2, y / 2)])
-                        printf("\033[0;31m");
+                        SET_PRINTF_COLOR_RED;
                     else if (visit[FIND_MAP_INDEX(x / 2, y / 2)])
-                        printf("\033[0;30m");
+                        SET_PRINTF_COLOR_BLACK;
                         //printf("\033[0;36m");
                     else
-                        printf("\033[0;36m");
+                        SET_PRINTF_COLOR_CYAN;
 
                     if (FIND_X_FROM_INDEX(robot->pos) == (x / 2) &&
                         FIND_Y_FROM_INDEX(robot->pos) == (y / 2))
                         printf(" %c ", showing_map[y][x]);
                     else
-                        printf("%3d", showing_map[y][x]);
+                        printf("%3d",(unsigned char)showing_map[y][x]);
                 }
                 else {
                     if (check_dests[y][x])
-                        printf("\033[0;32m");
+                        SET_PRINTF_COLOR_GREEN;
 
                     if (y % 2 == 0)
                         printf("%c ", showing_map[y][x]);
@@ -152,7 +165,7 @@ static void _draw_showing_map(int* visit, Robot* robot, QueueType* path)
                         printf("%c", showing_map[y][x]);
                 }
             }
-            printf("\033[0m");
+            SET_PRINTF_COLOR_DEFAULT;
         }
         printf("\n");
     }

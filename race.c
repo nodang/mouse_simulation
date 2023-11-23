@@ -110,7 +110,7 @@ void search_race(Map* origin_map, Map* map, int* visit, int* cost_fn, Robot* rob
 		else if (path->ind == 0)
 		{
 			// 현재 위치에서 비용 계산 및 경로 계획
-			calculate_cost_to_home(map, cost_fn, robot, path);
+			calculate_cost_to_home(map, cost_fn, visit, robot, path);
 		}
 
 		// Functions related to drawing
