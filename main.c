@@ -12,7 +12,7 @@ static void _init(FILE* fp)
 	memset(&path, 0, sizeof(path));
 
 	robot.pos = 0x00;
-	robot.dir = NORTH;
+	robot.dir = SOUTH;
 
 	goal_node[0] = GOAL_1;
 	goal_node[1] = GOAL_2;

@@ -1,8 +1,6 @@
 #ifndef __TOOLS_H
 #define __TOOLS_H
 
-#include "library.h"
-
 extern void queue_push(QueueType* queue, int val);
 extern int queue_pop(QueueType* queue);
 

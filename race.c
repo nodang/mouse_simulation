@@ -17,9 +17,9 @@ static unsigned char _reached_goal()
 static unsigned char _to_move_if_possible()
 {
 	// decide direction from position difference
-	char pos_diff = path.arr[0] - robot.pos;
+	int pos_diff = path.arr[0] - robot.pos;
 
-	char should_go_dir = 0xf;
+	int should_go_dir = 0xf;
 	if (pos_diff == 0x01)	should_go_dir = NORTH;
 	if (pos_diff == 0x10)	should_go_dir = EAST;
 	if (pos_diff == -0x01)	should_go_dir = SOUTH;
@@ -152,10 +152,9 @@ void fast_race()
 		if (path.ind == 0)
 			break;
 	}
-
+	/*
 	// go to home as soon as possible
 	calculate_cost_to_fast_home();
-
 	while (1)
 	{
 		// 모든 경로를 소진하면 도착으로 봄
@@ -166,5 +165,41 @@ void fast_race()
 
 		if (path.ind == 0)
 			break;
+	}
+	*/
+	// search the maze on the way home
+	while (1)
+	{
+		// 센서값으로 벽 정보 읽기
+		int robot_pos = robot.pos;
+
+		if (visit[robot_pos] == 0)
+		{
+			visit[robot_pos] = 1;
+			map[robot_pos].all = origin_map[robot_pos].all;
+		}
+
+		// 종료 확인
+		if (robot_pos == HOME)
+		{
+			draw_the_figure(DRAW_DELAY);
+			break;
+		}
+		else if (path.ind == 0)
+		{
+			// 현재 위치에서 비용 계산 및 경로 계획
+			calculate_cost_to_home();
+		}
+
+		// Functions related to drawing
+		draw_the_figure(DRAW_DELAY);
+
+		// 이동
+		while (path.ind > 0 && !_to_move_if_possible())
+		{
+			// 이동할 공간이 없으면
+			calculate_cost_to_home();
+			draw_the_figure(DRAW_DELAY);
+		}
 	}
 }

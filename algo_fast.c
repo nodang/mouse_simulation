@@ -3,20 +3,26 @@
 
 static void _heuristics_func_to_goal()
 {
+	int temp, node, dir, i, next_dir, next_node, c;
+
 	while (queue.ind > 0 && queue.ind < MAP_SIZE)
 	{
-		int temp = queue_pop(&queue);
-		int node = temp & 0xff;
-		int dir = (temp >> 8) & 0xf;
+		temp = queue_pop(&queue);
+		node = temp & 0xff;
+		dir = (temp >> 8) & 0xf;
 
-		for (int i = 0; i < 4; i++)
+
+		for (i = 0; i < 4; i++)
 		{
-			int next_dir = (1 << i);
+			next_dir = (1 << i);
 
 			if (map[node].all & next_dir)
 				continue;
 
-			int next_node = node + diff[i];
+			next_node = node + diff[i];
+
+			if (visit[next_node] == 0)
+				continue;
 
 			if (next_node < 0 || next_node >= MAP_SIZE || closed[next_node] == 1)
 				continue;
@@ -28,10 +34,10 @@ static void _heuristics_func_to_goal()
 			queue_push(&queue, (next_dir << 8) | next_node);
 			closed[next_node] = 1;
 
-			int c = 4;
+			c = 4;
 			if (dir == next_dir)
 				c = 1;
-			else if (!((dir + 2) & 3 == next_dir))
+			else if (!(((dir + 2) & 3) == next_dir))
 				c = 2;
 
 			h[next_node] = c;
@@ -39,25 +45,24 @@ static void _heuristics_func_to_goal()
 	}
 }
 
-static int _search_with_bfs_to_home()
+/**/static int _search_with_bfs_to_home()
 {
-	int start_node = robot.pos;
+	int node, i, next_dir, next_node, start_node = robot.pos;
 
 	while (queue.ind > 0 && queue.ind < MAP_SIZE)
 	{
-		int node = queue_pop(&queue);
+		node = queue_pop(&queue);
 
 		if (node == HOME)
-			return HOME;
+			return node;
 
-		for (int i = 0; i < 4; i++)
+		for (i = 0; i < 4; i++)
 		{
-			int next_dir = (1 << i);
-
+			next_dir = (1 << i);
 			if (map[node].all & next_dir)
 				continue;
 
-			int next_node = node + diff[i];
+			next_node = node + diff[i];
 
 			if (next_node < 0 || next_node >= MAP_SIZE || closed[next_node] == 1)
 				continue;

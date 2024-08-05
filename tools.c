@@ -1,3 +1,4 @@
+#include "library.h"
 #include "tools.h"
 
 void queue_push(QueueType* queue, int val)
@@ -39,8 +40,7 @@ int queue_pop(QueueType* queue)
 // 5. 찾은 위치에서 삽입할 노드 item을 저장하면 최대 히프의 재구성 작업이 완성되므로 삽입 연산을 종료한다. 
 void heap_push(HeapType* h, int node, int item)
 {
-	h->heap_size++;
-	int i = h->heap_size;
+	int i = ++h->heap_size;
 
 	while ((i != 1) && (item < h->cost[i >> 1]))
 	{

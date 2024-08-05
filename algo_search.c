@@ -3,18 +3,20 @@
 
 static void _heuristics_func_to_goal()
 {
+	int i, node, next_dir, next_node;
+
 	while (queue.ind > 0 && queue.ind < MAP_SIZE)
 	{
-		int node = queue_pop(&queue);
+		node = queue_pop(&queue);
 
-		for (int i = 0; i < 4; i++)
+		for (i = 0; i < 4; i++)
 		{
-			int next_dir = (1 << i);
+			next_dir = (1 << i);
 
 			if (map[node].all & next_dir)
 				continue;
 
-			int next_node = node + diff[i];
+			next_node = node + diff[i];
 
 			if (next_node < 0 || next_node >= MAP_SIZE || closed[next_node] == 1)
 				continue;
@@ -32,40 +34,46 @@ static void _heuristics_func_to_goal()
 }
 static int _search_with_bfs_to_home()
 {
-	int start_node = robot.dir;
+	int i, node, next_dir, next_node, inside_cnt, outside_cnt, start_node = robot.dir;
 
 	while (queue.ind > 0 && queue.ind < MAP_SIZE)
 	{
-		int node = queue_pop(&queue);
+		node = queue_pop(&queue);
 
 		if (visit[node] == 0)
 		{
-			int inside_cnt = 0;
-			inside_cnt += map[node].bit.north;
-			inside_cnt += map[node].bit.east;
-			inside_cnt += map[node].bit.south;
-			inside_cnt += map[node].bit.west;
+			inside_cnt = 0, outside_cnt = 0;
 
-			int outside_cnt = 0;
-			outside_cnt += map[node + diff[0]].bit.south;
-			outside_cnt += map[node + diff[1]].bit.west;
-			outside_cnt += map[node + diff[2]].bit.north;
-			outside_cnt += map[node + diff[3]].bit.east;
+			for (i = 0; i < 4; i++)
+			{
+				next_dir = (1 << i);
 
+				if (map[node].all & next_dir)
+					inside_cnt++;
+
+				next_node = node + diff[i];
+
+				if (next_node < 0 || next_node >= MAP_SIZE)
+					outside_cnt++;
+				else if (map[next_node].all & (1 << ((i + 2) & 3)))
+					outside_cnt++;;
+			}
+
+			// 3면이 벽이면 안간다 == 3면이 벽이 아니면 간다
 			if (outside_cnt < 3 && inside_cnt < 3)
 				return node;
 		}
 		else if (node == HOME)
-			return HOME;
+			return node;
 
-		for (int i = 0; i < 4; i++)
+		for (i = 0; i < 4; i++)
 		{
-			int next_dir = (1 << i);
+			next_dir = (1 << i);
 
 			if (map[node].all & next_dir)
 				continue;
 
-			int next_node = node + diff[i];
+			next_node = node + diff[i];
 
 			if (next_node < 0 || next_node >= MAP_SIZE || closed[next_node] == 1)
 				continue;
@@ -148,22 +156,22 @@ void init_bfs_algo()
 
 int a_star_algo_to_goal()
 {
-	int start_node = pq.node[0];
+	int i, node, next_node, temp, start_node = pq.node[0];
 
 	while (pq.heap_size != 0)
 	{
-		int node = heap_pop(&pq);
+		node = heap_pop(&pq);
 
-		for (int i = 0; i < 4; i++)
+		for (i = 0; i < 4; i++)
 			if (node == goal_node[i])
 				return node;
 
-		for (int i = 0; i < 4; i++)
+		for (i = 0; i < 4; i++)
 		{
 			if (map[node].all & (1 << i))
 				continue;
 
-			int next_node = node + diff[i];
+			next_node = node + diff[i];
 
 			//if (next_node < 0 || next_node >= MAP_SIZE || closed[next_node] == 1)
 			if (next_node < 0 || next_node >= MAP_SIZE)
@@ -178,7 +186,7 @@ int a_star_algo_to_goal()
 			{
 				g[next_node] = g[node] + 1;
 
-				int temp = g[next_node] + h[next_node];
+				temp = g[next_node] + h[next_node];
 				cost[next_node] = temp;
 				heap_push(&pq, next_node, temp);
 				closed[next_node] = 1;
@@ -212,7 +220,7 @@ void calculate_cost_to_goal()
 
 	// calculate heuristics cost for a-star
 	init_h_func_to_goal();
-	_heuristics_func_to_goal(map);
+	_heuristics_func_to_goal();
 
 	// calculate gone cost for a-star
 	g[robot.pos] = 0;
