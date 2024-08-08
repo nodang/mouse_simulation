@@ -33,17 +33,28 @@ static unsigned char _to_move_if_possible()
 		if (should_go_dir != robot.dir)
 		{
 			robot.dir = should_go_dir;
+			draw_the_figure(DRAW_DELAY);
 		}
-		// if not, move the next position
-		else
+		// And then move the next position
+		robot.pos = queue_pop(&path);
+		while (path.ind > 0 && visit[robot.pos] == 1)
 		{
+			int pos_diff2 = path.arr[0] - robot.pos;
+
+			if (pos_diff != pos_diff2)
+				break;
+
 			robot.pos = queue_pop(&path);
 		}
+		draw_the_figure(DRAW_DELAY);
 
 		return TRUE;
 	}
 	else
+	{
+		path.ind = 0;
 		return FALSE;
+	}
 }
 
 void search_race()
@@ -53,83 +64,65 @@ void search_race()
 	// go to the goal
 	while (1)
 	{
-		// 센서값으로 벽 정보 읽기
 		int robot_pos = robot.pos;
 
+		// 종료 확인
+		unsigned char end_of_while = FALSE;
+		if (goal_node[0] == robot_pos ||
+			goal_node[1] == robot_pos ||
+			goal_node[2] == robot_pos ||
+			goal_node[3] == robot_pos)
+		{
+			draw_the_figure(0);
+			break;
+		}
+
+		// 센서값으로 벽 정보 읽기
 		if (visit[robot_pos] == 0)
 		{
 			visit[robot_pos] = 1;
 			map[robot_pos].all = origin_map[robot_pos].all;
 		}
 
-		// 종료 확인
-		unsigned char end_of_while = FALSE;
-		for (int i = 0; i < 4; i++)
+		// 현재 위치에서 비용 계산 및 경로 계획
+		if (path.ind == 0)
 		{
-			if (robot_pos == goal_node[i])
-			{
-				end_of_while = TRUE;
-				break;
-			}
-		}
-
-		if (end_of_while)
-		{
-			draw_the_figure(DRAW_DELAY);
-			break;
-		}
-		else if (path.ind == 0)
-		{
-			// 현재 위치에서 비용 계산 및 경로 계획
 			calculate_cost_to_goal();
+			draw_the_figure(0);
 		}
-
-		// Functions related to drawing
-		draw_the_figure(DRAW_DELAY);
 
 		// 이동
-		while (path.ind > 0 && !_to_move_if_possible())
-		{
-			// 이동할 공간이 없으면
-			calculate_cost_to_goal();
-			draw_the_figure(DRAW_DELAY);
-		}
+		_to_move_if_possible();
 	}
 
 	// search the maze on the way home
 	while (1)
 	{
-		// 센서값으로 벽 정보 읽기
 		int robot_pos = robot.pos;
 
+		// 종료 확인
+		if (robot_pos == HOME)
+		{
+			draw_the_figure(0);
+			break;
+		}
+
+		// 센서값으로 벽 정보 읽기
 		if (visit[robot_pos] == 0)
 		{
 			visit[robot_pos] = 1;
 			map[robot_pos].all = origin_map[robot_pos].all;
 		}
 
-		// 종료 확인
-		if (robot_pos == HOME)
+		// 현재 위치에서 비용 계산 및 경로 계획
+		if (path.ind == 0)
 		{
-			draw_the_figure(DRAW_DELAY);
-			break;
-		}
-		else if (path.ind == 0)
-		{
-			// 현재 위치에서 비용 계산 및 경로 계획
 			calculate_cost_to_home();
+			draw_the_figure(0);
 		}
-
-		// Functions related to drawing
-		draw_the_figure(DRAW_DELAY);
 
 		// 이동
-		while (path.ind > 0 && !_to_move_if_possible())
-		{
-			// 이동할 공간이 없으면
-			calculate_cost_to_home();
-			draw_the_figure(DRAW_DELAY);
-		}
+		_to_move_if_possible();
 	}
 }
 
@@ -140,15 +133,15 @@ void fast_race()
 
 	// go to the goal as soon as possible.
 	calculate_cost_to_fast_goal();
+	draw_the_figure(0);
+
+	int i = 0;
 
 	while (1)
 	{
+		_to_move_if_possible();
+
 		// 모든 경로를 소진하면 도착으로 봄
-		if (path.ind > 0)
-			_to_move_if_possible();
-
-		draw_the_figure(DRAW_DELAY);
-
 		if (path.ind == 0)
 			break;
 	}
@@ -170,36 +163,30 @@ void fast_race()
 	// search the maze on the way home
 	while (1)
 	{
-		// 센서값으로 벽 정보 읽기
 		int robot_pos = robot.pos;
 
+		// 종료 확인
+		if (robot_pos == HOME)
+		{
+			draw_the_figure(0);
+			break;
+		}
+
+		// 센서값으로 벽 정보 읽기
 		if (visit[robot_pos] == 0)
 		{
 			visit[robot_pos] = 1;
 			map[robot_pos].all = origin_map[robot_pos].all;
 		}
 
-		// 종료 확인
-		if (robot_pos == HOME)
+		// 현재 위치에서 비용 계산 및 경로 계획
+		if (path.ind == 0)
 		{
-			draw_the_figure(DRAW_DELAY);
-			break;
+			calculate_cost_to_fast_home();
+			draw_the_figure(0);
 		}
-		else if (path.ind == 0)
-		{
-			// 현재 위치에서 비용 계산 및 경로 계획
-			calculate_cost_to_home();
-		}
-
-		// Functions related to drawing
-		draw_the_figure(DRAW_DELAY);
 
 		// 이동
-		while (path.ind > 0 && !_to_move_if_possible())
-		{
-			// 이동할 공간이 없으면
-			calculate_cost_to_home();
-			draw_the_figure(DRAW_DELAY);
-		}
+		_to_move_if_possible();
 	}
 }

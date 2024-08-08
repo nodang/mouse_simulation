@@ -34,7 +34,7 @@ static void _heuristics_func_to_goal()
 }
 static int _search_with_bfs_to_home()
 {
-	int i, node, next_dir, next_node, inside_cnt, outside_cnt, start_node = robot.dir;
+	int i, node, next_dir, next_node, inside_cnt, outside_cnt, start_node = robot.pos;
 
 	while (queue.ind > 0 && queue.ind < MAP_SIZE)
 	{
@@ -62,6 +62,9 @@ static int _search_with_bfs_to_home()
 			// 3면이 벽이면 안간다 == 3면이 벽이 아니면 간다
 			if (outside_cnt < 3 && inside_cnt < 3)
 				return node;
+			
+			//if (outside_cnt >= 3 || inside_cnt >= 3)
+			//	continue;
 		}
 		else if (node == HOME)
 			return node;
@@ -81,11 +84,11 @@ static int _search_with_bfs_to_home()
 			// 목표에서부터 탐색하기 때문에 너머의 벽도 확인해야함
 			if (map[next_node].all & (1 << ((i + 2) & 3)))
 				continue;
-
+			
 			queue_push(&queue, next_node);
 			closed[next_node] = 1;
 
-			cost[next_node] = cost[node] + 1;
+			//cost[next_node] = cost[node] + 1;
 
 			if (cost[next_node] > cost[node])
 			{
@@ -94,7 +97,6 @@ static int _search_with_bfs_to_home()
 			}
 		}
 	}
-
 	return start_node;
 }
 
@@ -153,7 +155,6 @@ void init_bfs_algo()
 	cost[start_node] = 0;
 }
 
-
 int a_star_algo_to_goal()
 {
 	int i, node, next_node, temp, start_node = pq.node[0];
@@ -173,8 +174,8 @@ int a_star_algo_to_goal()
 
 			next_node = node + diff[i];
 
-			//if (next_node < 0 || next_node >= MAP_SIZE || closed[next_node] == 1)
-			if (next_node < 0 || next_node >= MAP_SIZE)
+			if (next_node < 0 || next_node >= MAP_SIZE || closed[next_node] == 1)
+			//if (next_node < 0 || next_node >= MAP_SIZE)
 				continue;
 
 			// 목표에서부터 탐색하기 때문에 너머의 벽도 확인해야함
