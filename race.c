@@ -20,10 +20,10 @@ static unsigned char _to_move_if_possible()
 	int pos_diff = path.arr[0] - robot.pos;
 
 	int should_go_dir = 0xf;
-	if (pos_diff == 0x01)	should_go_dir = NORTH;
-	if (pos_diff == 0x10)	should_go_dir = EAST;
-	if (pos_diff == -0x01)	should_go_dir = SOUTH;
-	if (pos_diff == -0x10)	should_go_dir = WEST;
+	if (pos_diff == diff[0])	should_go_dir = NORTH;
+	if (pos_diff == diff[1])	should_go_dir = EAST;
+	if (pos_diff == diff[2])	should_go_dir = SOUTH;
+	if (pos_diff == diff[3])	should_go_dir = WEST;
 
 	// check the possibility of movement
 	// check the possibility of path tracking
@@ -67,7 +67,6 @@ void search_race()
 		int robot_pos = robot.pos;
 
 		// 종료 확인
-		unsigned char end_of_while = FALSE;
 		if (goal_node[0] == robot_pos ||
 			goal_node[1] == robot_pos ||
 			goal_node[2] == robot_pos ||
@@ -82,6 +81,18 @@ void search_race()
 		{
 			visit[robot_pos] = 1;
 			map[robot_pos].all = origin_map[robot_pos].all;
+
+			for (int i = 0; i < 4; i++)
+			{
+				int next_pos = robot_pos + diff[i];
+				int wall_dir = 1 << i;
+
+				if (next_pos < 0 || next_pos >= MAP_SIZE)
+					continue;
+
+				if (map[robot_pos].all & wall_dir)
+					map[next_pos].all |= (wall_dir << 2) % 15;
+			}
 		}
 
 		// 현재 위치에서 비용 계산 및 경로 계획
@@ -112,6 +123,18 @@ void search_race()
 		{
 			visit[robot_pos] = 1;
 			map[robot_pos].all = origin_map[robot_pos].all;
+
+			for (int i = 0; i < 4; i++)
+			{
+				int next_pos = robot_pos + diff[i];
+				int wall_dir = 1 << i;
+
+				if (next_pos < 0 || next_pos >= MAP_SIZE)
+					continue;
+
+				if (map[robot_pos].all & wall_dir)
+					map[next_pos].all |= (wall_dir << 2) % 15;
+			}
 		}
 
 		// 현재 위치에서 비용 계산 및 경로 계획

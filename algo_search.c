@@ -118,7 +118,7 @@ void init_h_func_to_goal()
 	{
 		int node = goal_node[i];
 
-		queue_push(&queue, node);
+		queue_push(&queue, (0xf << 8) | node);
 		closed[node] = 1;
 		h[node] = 0;
 	}

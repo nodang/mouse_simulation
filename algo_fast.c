@@ -39,14 +39,16 @@ static void _heuristics_func_to_goal()
 
 				c = 1;
 				// straight case
-				if (dir == next_dir || ((dir << 2) % 15) == next_dir)
+				//if (dir == next_dir || ((dir << 2) % 15) == next_dir)
+				if ((dir & next_dir) > 0 && (past_dir & next_dir) > 0)
+				//if (dir == next_dir)
 					c = 0;
 				// diagonal case
-				if ((past_dir == next_dir || ((past_dir << 2) % 15) == next_dir) &&
-					(map[next_node].all & dir) == 0)
+				//if ((past_dir == next_dir || ((past_dir << 2) % 15) == next_dir) &&
+				if ((past_dir & next_dir) > 0 && (map[next_node].all & dir) == 0)
 					c = 0;
 
-				h[next_node] = h[node] + c;
+				h[next_node] = 0;//h[node] + c;
 			}
 		}
 	}
@@ -129,10 +131,9 @@ int a_star_algo_to_fast_goal()
 			{
 				g[next_node] = g[node] + 1;
 
-				//temp = g[next_node] + h[next_node];
-				temp = h[next_node];
+				temp = g[next_node] + h[next_node];
 				cost[next_node] = temp;
-				heap_push(&pq, next_node, temp);
+				heap_push(&pq, next_node, g[next_node]);
 				closed[next_node] = 1;
 				past_node[next_node] = node;
 			}

@@ -140,10 +140,10 @@ static void _draw_showing_map()
                     else if (path_check[FIND_MAP_INDEX(x / 2, y / 2)])
                         SET_PRINTF_COLOR_RED;
                     else if (visit[FIND_MAP_INDEX(x / 2, y / 2)])
-                        SET_PRINTF_COLOR_BLACK;
+                        SET_PRINTF_COLOR_CYAN;
                         //printf("\033[0;36m");
                     else
-                        SET_PRINTF_COLOR_CYAN;
+                        SET_PRINTF_COLOR_PURPLE;
 
                     if (FIND_X_FROM_INDEX(robot.pos) == (x / 2) &&
                         FIND_Y_FROM_INDEX(robot.pos) == (y / 2))
