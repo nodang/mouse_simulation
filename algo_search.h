@@ -7,6 +7,7 @@ extern void init_a_star_algo();
 extern void init_bfs_algo();
 
 extern int a_star_algo_to_goal();
+extern int search_with_bfs_to_home(int search_flag);
 
 extern void queue_the_path(int last_node);
 extern void calculate_cost_to_goal();
