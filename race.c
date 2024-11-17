@@ -37,7 +37,7 @@ static unsigned char _to_move_if_possible()
 		}
 		// And then move the next position
 		robot.pos = queue_pop(&path);
-		while (path.ind > 0 && visit[robot.pos] == 1)
+		while (path.ind > 0 && visit[robot.pos] != 0)
 		{
 			int pos_diff2 = path.arr[0] - robot.pos;
 

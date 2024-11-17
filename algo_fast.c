@@ -14,7 +14,7 @@ static int _compute_straight_way_cost(int past, int start)
 	for (i = 0; i < 4; i++)
 	{
 		// wall exist
-		if (map[curr_node].all & (1 << i) == 1)
+		if (map[curr_node].all & (1 << i))
 			continue;
 
 		next_node = curr_node + diff[i];
@@ -47,7 +47,7 @@ static int _compute_straight_way_cost(int past, int start)
 		for (i = 0; i < 4; i++)
 		{
 			// wall exist
-			if (map[curr_node].all & (1 << i) == 1)
+			if (map[curr_node].all & (1 << i))
 				continue;
 
 			// only straight direction
@@ -146,7 +146,7 @@ static void _heuristics_func_to_goal()
 
 int a_star_algo_to_fast_goal()
 {
-	int i, temp, node, next_node, start_node = pq.node[0], c;
+	int i, temp, node, next_node, start_node = pq.node[0];
 
 	while (pq.heap_size != 0)
 	{

@@ -140,8 +140,13 @@ static void _draw_showing_map()
                     else if (path_check[FIND_MAP_INDEX(x / 2, y / 2)])
                         SET_PRINTF_COLOR_RED;
                     else if (visit[FIND_MAP_INDEX(x / 2, y / 2)])
-                        SET_PRINTF_COLOR_CYAN;
+                    {
+                        if (visit[FIND_MAP_INDEX(x / 2, y / 2)] == 1)
+                            SET_PRINTF_COLOR_CYAN;
+                        else
+                            SET_PRINTF_COLOR_BLUE;
                         //printf("\033[0;36m");
+                    }
                     else
                         SET_PRINTF_COLOR_PURPLE;
 

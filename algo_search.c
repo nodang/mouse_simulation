@@ -167,7 +167,8 @@ int search_with_bfs_to_home(int search_flag)
 		node = temp & 0xff;
 		dir = (temp >> 8) & 0xff;
 
-		if (search_flag == TRUE && visit[node] == 0)
+		//if (search_flag == TRUE && visit[node] == 0)
+		if (visit[node] == 0)
 		{
 			inside_cnt = 0, outside_cnt = 0, wall_know_cnt = 0;
 			visit_node.all = map[node].all;
@@ -189,7 +190,7 @@ int search_with_bfs_to_home(int search_flag)
 					wall_know_cnt++;
 					continue;
 				}
-				else if (visit[next_node] == 1)
+				else if (visit[next_node] != 0)
 				{
 					wall_know_cnt++;
 
@@ -203,7 +204,7 @@ int search_with_bfs_to_home(int search_flag)
 			if (wall_know_cnt == 4)
 			{
 				map[node].all = visit_node.all;
-				visit[node] = 1;
+				visit[node] = 2;
 			}
 
 			// 3면이 벽이면 안간다 == 3면이 벽이 아니면 간다
