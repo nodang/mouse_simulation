@@ -17,7 +17,7 @@ static int _compute_straight_way_cost(int past, int start)
 		if (map[curr_node].all & (1 << i))
 			continue;
 
-		next_node = curr_node + diff[i];
+		next_node = curr_node + coord_diff[0][i];
 		dir = 1 << i;
 
 		// out of scope
@@ -29,7 +29,7 @@ static int _compute_straight_way_cost(int past, int start)
 			continue;
 
 		// over the wall, wall exist
-		if (map[next_node].all & (1 << ((i + 2) & 3)))
+		if (map[next_node].all & direction[dir << 1][CONVERT_DIRTECTION_INDEX(i)])
 			continue;
 
 		queue_push(&qs, (curr_node << 16) | (dir << 8) | next_node);
@@ -54,7 +54,7 @@ static int _compute_straight_way_cost(int past, int start)
 			if (dir != (1 << i))
 				continue;
 
-			next_node = curr_node + diff[i];
+			next_node = curr_node + coord_diff[dir << 1][i];
 
 			// out of scope
 			if (next_node < 0 || next_node >= MAP_SIZE)
@@ -65,7 +65,7 @@ static int _compute_straight_way_cost(int past, int start)
 				continue;
 
 			// over the wall, wall exist
-			if (map[next_node].all & (1 << ((i + 2) & 3)))
+			if (map[next_node].all & direction[dir << 1][CONVERT_DIRTECTION_INDEX(i)])
 				continue;
 
 			queue_push(&qs, (curr_node << 16) | (dir << 8) | next_node);
@@ -100,22 +100,22 @@ static void _heuristics_func_to_goal()
 
 		for (i = 0; i < 4; i++)
 		{
-			next_dir = (1 << i);
+			next_dir = direction[dir << 1][i];
 
 			if (map[node].all & next_dir)
 				continue;
 
-			next_node = node + diff[i];
-
-			if (visit[next_node] == 0)
-				continue;
+			next_node = node + coord_diff[dir << 1][i];
 
 			//if (next_node < 0 || next_node >= MAP_SIZE || (closed[next_node] == 1 && h[next_node] <= h[node]))
 			if (next_node < 0 || next_node >= MAP_SIZE)
 				continue;
 
+			if (visit[next_node] == 0)
+				continue;
+
 			// 목표에서부터 탐색하기 때문에 너머의 벽도 확인해야함
-			if (map[next_node].all & (1 << ((i + 2) & 3)))
+			if (map[next_node].all & direction[dir << 1][CONVERT_DIRTECTION_INDEX(i)])
 				continue;
 
 			if (h[next_node] == MAX_COST_8UL || h[next_node] < h[node])
@@ -144,53 +144,6 @@ static void _heuristics_func_to_goal()
 	}
 }
 
-int a_star_algo_to_fast_goal()
-{
-	int i, temp, node, next_node, start_node = pq.node[0];
-
-	while (pq.heap_size != 0)
-	{
-		node = heap_pop(&pq);
-
-		for (i = 0; i < 4; i++)
-			if (node == goal_node[i])
-				return node;
-
-		for (i = 0; i < 4; i++)
-		{
-			if (map[node].all & (1 << i))
-				continue;
-
-			next_node = node + diff[i];
-
-			if (visit[next_node] == 0)
-				continue;
-
-			//if (next_node < 0 || next_node >= MAP_SIZE || closed[next_node] == 1)
-			if (next_node < 0 || next_node >= MAP_SIZE)
-				continue;
-
-			// 목표에서부터 탐색하기 때문에 너머의 벽도 확인해야함
-			//((i + 2) & 3)) == ((i + 2) % 4))
-			if (map[next_node].all & (1 << ((i + 2) & 3)))
-				continue;
-
-			if (g[next_node] > g[node])
-			{
-				g[next_node] = g[node] + 1;
-
-				temp = g[next_node] + h[next_node];
-				cost[next_node] = temp;
-				heap_push(&pq, next_node, g[next_node]);
-				closed[next_node] = 1;
-				past_node[next_node] = node;
-			}
-		}
-	}
-
-	return start_node;
-}
-
 void calculate_cost_to_fast_goal()
 {
 	init_algo();
@@ -202,8 +155,8 @@ void calculate_cost_to_fast_goal()
 	// calculate gone cost for a-star
 	g[robot.pos] = 0;
 
-	init_a_star_algo(FALSE);
-	queue_the_path(a_star_algo_to_fast_goal());
+	init_a_star_algo();
+	queue_the_path(a_star_algo_to_goal());
 }
 
 void calculate_cost_to_fast_home()

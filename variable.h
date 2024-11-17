@@ -105,6 +105,7 @@ __VARIABLE_EXT__ int cost[MAP_SIZE], g[MAP_SIZE], h[MAP_SIZE];
 __VARIABLE_EXT__ int past_node[MAP_SIZE], goal_node[4];
 
 // the order of diff matches north, east, south, west.
-__VARIABLE_EXT__ int diff[4], diff_eight[8];
+__VARIABLE_EXT__ int diff[4]; //, diff_eight[8];
+__VARIABLE_EXT__ int direction[5][4], coord_diff[5][4];
 
 /* __VARIABLE_EXT__ */

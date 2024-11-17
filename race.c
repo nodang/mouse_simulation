@@ -208,6 +208,7 @@ void fast_race()
 		{
 			calculate_cost_to_fast_home();
 			draw_the_figure(0);
+			int pause = 1;
 		}
 
 		// ¿Ãµø

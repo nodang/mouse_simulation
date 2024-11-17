@@ -4,6 +4,31 @@
 #include "library.h"
 #include "main.h"
 
+static void _set_array()
+{
+	// the order of diff matches north, east, south, west.
+
+	int _direction[5][4] = {
+	{NORTH, EAST, SOUTH, WEST},
+	{EAST, SOUTH, WEST, NORTH},
+	{SOUTH, WEST, NORTH, EAST},
+	{0, 0, 0, 0},
+	{WEST, NORTH, EAST, SOUTH}
+	};
+
+	int _coord_diff[5][4] = {
+		{PLUS_Y, PLUS_X, MINUS_Y, MINUS_X},
+		{PLUS_X, MINUS_Y, MINUS_X, PLUS_Y},
+		{MINUS_Y, MINUS_X, PLUS_Y, PLUS_X},
+		{0, 0, 0, 0},
+		{MINUS_X, PLUS_Y, PLUS_X, MINUS_Y}
+	};
+
+	memcpy(diff, _coord_diff[0], sizeof(diff));
+	memcpy(direction, _direction, sizeof(direction));
+	memcpy(coord_diff, _coord_diff, sizeof(direction));
+}
+
 static void _init(FILE* fp)
 {
 	fread(origin_map, 1, MAP_SIZE, fp);
@@ -19,12 +44,7 @@ static void _init(FILE* fp)
 	goal_node[2] = GOAL_3;
 	goal_node[3] = GOAL_4;
 
-	// the order of diff matches north, east, south, west.
-	diff[0] = PLUS_Y;
-	diff[1] = PLUS_X;
-	diff[2] = MINUS_Y;
-	diff[3] = MINUS_X;
-
+/*
 	diff_eight[0] = PLUS_Y;
 	diff_eight[1] = PLUS_X_Y;
 	diff_eight[2] = PLUS_X;
@@ -33,6 +53,8 @@ static void _init(FILE* fp)
 	diff_eight[5] = MINUS_X_Y;
 	diff_eight[6] = MINUS_X;
 	diff_eight[7] = PLUS_X_MINUS_Y;
+*/
+	_set_array();
 
 	// init_map about side wall
 	for (int i = 0; i < MAP_SIZE; i++)
@@ -49,7 +71,7 @@ static void _init(FILE* fp)
 
 int main(int argc, char* argv[])
 {
-	FILE* fp = fopen("map.MAZ", "r");
+	FILE* fp = fopen("8map.MAZ", "r");
 	_init(fp);
 
 #if 0	// TRUE : ºóÄ­ Ãâ·Â, FALSE : ¹«°Ô°ª Ãâ·Â
