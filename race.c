@@ -133,7 +133,7 @@ void search_race()
 					continue;
 
 				if (map[robot_pos].all & wall_dir)
-					map[next_pos].all |= (wall_dir << 2) % 15;
+					map[next_pos].all |= CONVERT_DIRTECTION_BY_INDEX(i);
 			}
 		}
 

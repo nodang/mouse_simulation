@@ -22,7 +22,7 @@ static void _heuristics_func_to_goal()
 				continue;
 
 			// 목표에서부터 탐색하기 때문에 너머의 벽도 확인해야함
-			if (map[next_node].all & (1 << ((i + 2) & 3)))
+			if (map[next_node].all & CONVERT_DIRTECTION_BY_INDEX(i))
 				continue;
 
 			queue_push(&queue, next_node);
@@ -137,7 +137,7 @@ int a_star_algo_to_goal()
 
 			// 목표에서부터 탐색하기 때문에 너머의 벽도 확인해야함
 			//((i + 2) & 3)) == ((i + 2) % 4))
-			if (map[next_node].all & dir_priority[dir >> 1][(i + 2) & 3])
+			if (map[next_node].all & dir_priority[dir >> 1][CONVERT_DIRTECTION_INDEX(i)])
 				continue;
 
 			if (g[next_node] > g[node])
@@ -158,7 +158,7 @@ int a_star_algo_to_goal()
 
 int search_with_bfs_to_home(int search_flag)
 {
-	int i, temp, node, dir, next_dir, next_node, inside_cnt, outside_cnt, wall_know, wall_know_cnt, start_node = robot.pos;
+	int i, temp, node, dir, next_dir, next_node, inside_cnt, outside_cnt, wall_know_cnt, start_node = robot.pos;
 	Map visit_node;
 
 	while (queue.ind > 0 && queue.ind < MAP_SIZE)
@@ -174,31 +174,30 @@ int search_with_bfs_to_home(int search_flag)
 
 			for (i = 0; i < 4; i++)
 			{
-				wall_know = FALSE;
 				next_dir = dir_priority[dir >> 1][i];
 
 				// 벽 있음
 				if (map[node].all & next_dir)
-				{
 					inside_cnt++;
-					wall_know = TRUE;
-				}
 
 				next_node = node + diff_priority[dir >> 1][i];
 
 				// 인접 노드 벽 있음
-				if ((next_node < 0 || next_node >= MAP_SIZE)
-					|| (map[next_node].all & dir_priority[dir >> 1][(i + 2) & 3]))
+				if (next_node < 0 || next_node >= MAP_SIZE)
 				{
 					outside_cnt++;
-					wall_know = TRUE;
-				}
-
-				if (wall_know == TRUE)
-				{
-					visit_node.all &= next_dir;
 					wall_know_cnt++;
+					continue;
 				}
+				else if (visit[next_node] == 1)
+				{
+					wall_know_cnt++;
+
+					if (map[next_node].all & dir_priority[dir >> 1][CONVERT_DIRTECTION_INDEX(i)])
+						visit_node.all |= next_dir;
+				}
+				else if (map[next_node].all & dir_priority[dir >> 1][CONVERT_DIRTECTION_INDEX(i)])
+					outside_cnt++;
 			}
 
 			if (wall_know_cnt == 4)
@@ -232,7 +231,7 @@ int search_with_bfs_to_home(int search_flag)
 				continue;
 
 			// 목표에서부터 탐색하기 때문에 너머의 벽도 확인해야함
-			if (map[next_node].all & dir_priority[dir >> 1][(i + 2) & 3])
+			if (map[next_node].all & dir_priority[dir >> 1][CONVERT_DIRTECTION_INDEX(i)])
 				continue;
 
 			queue_push(&queue, (next_dir << 8) | next_node);

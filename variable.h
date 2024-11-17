@@ -13,6 +13,9 @@
 #define FIND_X_FROM_INDEX(ind)	((ind & 0xf0) >> 4)
 #define FIND_Y_FROM_INDEX(ind)	(ind & 0x0f)
 
+#define CONVERT_DIRTECTION_INDEX(ind)		((ind + 2) & 3)
+#define CONVERT_DIRTECTION_BY_INDEX(ind)	(1 << CONVERT_DIRTECTION_INDEX(ind))
+
 #define MAX_COST_8UL	255
 
 //==========================================================================//
