@@ -6,26 +6,37 @@
 
 static void _set_array()
 {
-	// the order of diff matches north, east, south, west.
-
+	// diff order: PLUS_Y, PLUS_X, MINUS_Y, MINUS_X -> north, east, south, west.
+	// but for priority, direction order should be set as below.
+	// front, side, back 
+	// ex) IF robot dir == north, THEN search dir = north, east, west, south.
 	int _direction[5][4] = {
-	{NORTH, EAST, SOUTH, WEST},
-	{EAST, SOUTH, WEST, NORTH},
-	{SOUTH, WEST, NORTH, EAST},
-	{0, 0, 0, 0},
-	{WEST, NORTH, EAST, SOUTH}
+		{NORTH, EAST, WEST, SOUTH},
+		{EAST, SOUTH, NORTH, WEST},
+		{SOUTH, WEST, EAST, NORTH},
+		{0, 0, 0, 0},
+		{WEST, NORTH, SOUTH, EAST}
+	};
+
+	int _oppo_direction[5][4] = {
+		{SOUTH, WEST, EAST, NORTH},
+		{WEST, NORTH, SOUTH, EAST},
+		{NORTH, EAST, WEST, SOUTH},
+		{0, 0, 0, 0},
+		{EAST, SOUTH, NORTH, WEST}
 	};
 
 	int _coord_diff[5][4] = {
-		{PLUS_Y, PLUS_X, MINUS_Y, MINUS_X},
-		{PLUS_X, MINUS_Y, MINUS_X, PLUS_Y},
-		{MINUS_Y, MINUS_X, PLUS_Y, PLUS_X},
+		{PLUS_Y, PLUS_X, MINUS_X, MINUS_Y},
+		{PLUS_X, MINUS_Y, PLUS_Y, MINUS_X},
+		{MINUS_Y, MINUS_X, PLUS_X, PLUS_Y},
 		{0, 0, 0, 0},
-		{MINUS_X, PLUS_Y, PLUS_X, MINUS_Y}
+		{MINUS_X, PLUS_Y, MINUS_Y, PLUS_X}
 	};
 
-	memcpy(diff, _coord_diff[0], sizeof(diff));
+	//memcpy(diff, _coord_diff[0], sizeof(diff));
 	memcpy(direction, _direction, sizeof(direction));
+	memcpy(oppo_direction, _oppo_direction, sizeof(oppo_direction));
 	memcpy(coord_diff, _coord_diff, sizeof(direction));
 }
 
@@ -71,7 +82,7 @@ static void _init(FILE* fp)
 
 int main(int argc, char* argv[])
 {
-	FILE* fp = fopen("8map.MAZ", "r");
+	FILE* fp = fopen("9map.MAZ", "r");
 	_init(fp);
 
 #if 0	// TRUE : ºóÄ­ Ãâ·Â, FALSE : ¹«°Ô°ª Ãâ·Â

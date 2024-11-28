@@ -20,10 +20,10 @@ static unsigned char _to_move_if_possible()
 	int pos_diff = path.arr[0] - robot.pos;
 
 	int should_go_dir = 0xf;
-	if (pos_diff == diff[0])	should_go_dir = NORTH;
-	if (pos_diff == diff[1])	should_go_dir = EAST;
-	if (pos_diff == diff[2])	should_go_dir = SOUTH;
-	if (pos_diff == diff[3])	should_go_dir = WEST;
+	if (pos_diff == PLUS_Y)		should_go_dir = NORTH;
+	if (pos_diff == PLUS_X)		should_go_dir = EAST;
+	if (pos_diff == MINUS_Y)	should_go_dir = SOUTH;
+	if (pos_diff == MINUS_X)	should_go_dir = WEST;
 
 	// check the possibility of movement
 	// check the possibility of path tracking
@@ -64,6 +64,7 @@ void search_race()
 	// go to the goal
 	while (1)
 	{
+		int robot_dir = robot.dir;
 		int robot_pos = robot.pos;
 
 		// 종료 확인
@@ -84,8 +85,8 @@ void search_race()
 
 			for (int i = 0; i < 4; i++)
 			{
-				int next_pos = robot_pos + diff[i];
-				int wall_dir = 1 << i;
+				int next_pos = robot_pos + coord_diff[robot_dir >> 1][i];
+				int wall_dir = direction[robot_dir >> 1][i];
 
 				if (next_pos < 0 || next_pos >= MAP_SIZE)
 					continue;
@@ -109,6 +110,7 @@ void search_race()
 	// search the maze on the way home
 	while (1)
 	{
+		int robot_dir = robot.dir;
 		int robot_pos = robot.pos;
 
 		// 종료 확인
@@ -126,14 +128,14 @@ void search_race()
 
 			for (int i = 0; i < 4; i++)
 			{
-				int next_pos = robot_pos + diff[i];
-				int wall_dir = 1 << i;
+				int next_pos = robot_pos + coord_diff[robot_dir >> 1][i];
+				int wall_dir = direction[robot_dir >> 1][i];
 
 				if (next_pos < 0 || next_pos >= MAP_SIZE)
 					continue;
 
 				if (map[robot_pos].all & wall_dir)
-					map[next_pos].all |= CONVERT_DIRTECTION_BY_INDEX(i);
+					map[next_pos].all |= oppo_direction[robot_dir >> 1][i];
 			}
 		}
 

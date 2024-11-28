@@ -13,8 +13,10 @@
 #define FIND_X_FROM_INDEX(ind)	((ind & 0xf0) >> 4)
 #define FIND_Y_FROM_INDEX(ind)	(ind & 0x0f)
 
-#define CONVERT_DIRTECTION_INDEX(ind)		((ind + 2) & 3)
-#define CONVERT_DIRTECTION_BY_INDEX(ind)	(1 << CONVERT_DIRTECTION_INDEX(ind))
+//#define CONVERT_DIRTECTION_INDEX(ind)		((ind + 2) & 3)
+//#define CONVERT_DIRTECTION_BY_INDEX(ind)	(1 << CONVERT_DIRTECTION_INDEX(ind))
+
+#define OPPOSITE_DIRECTION(dir)		(dir )
 
 #define MAX_COST_8UL	255
 
@@ -105,7 +107,7 @@ __VARIABLE_EXT__ int cost[MAP_SIZE], g[MAP_SIZE], h[MAP_SIZE];
 __VARIABLE_EXT__ int past_node[MAP_SIZE], goal_node[4];
 
 // the order of diff matches north, east, south, west.
-__VARIABLE_EXT__ int diff[4]; //, diff_eight[8];
-__VARIABLE_EXT__ int direction[5][4], coord_diff[5][4];
+//__VARIABLE_EXT__ int diff[4]; //, diff_eight[8];
+__VARIABLE_EXT__ int direction[5][4], oppo_direction[5][4], coord_diff[5][4];
 
 /* __VARIABLE_EXT__ */

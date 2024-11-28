@@ -3,29 +3,31 @@
 
 static void _heuristics_func_to_goal()
 {
-	int i, node, next_dir, next_node;
+	int i, temp, dir, node, next_dir, next_node;
 
 	while (queue.ind > 0 && queue.ind < MAP_SIZE)
 	{
-		node = queue_pop(&queue);
+		temp = queue_pop(&queue);
+		dir = (temp >> 8) & 0xff;
+		node = temp & 0xff;
 
 		for (i = 0; i < 4; i++)
 		{
-			next_dir = (1 << i);
+			next_dir = direction[dir >> 1][i];
 
 			if (map[node].all & next_dir)
 				continue;
 
-			next_node = node + diff[i];
+			next_node = node + coord_diff[dir >> 1][i];
 
 			if (next_node < 0 || next_node >= MAP_SIZE || closed[next_node] == 1)
 				continue;
 
 			// 목표에서부터 탐색하기 때문에 너머의 벽도 확인해야함
-			if (map[next_node].all & CONVERT_DIRTECTION_BY_INDEX(i))
+			if (map[next_node].all & oppo_direction[dir >> 1][i])
 				continue;
 
-			queue_push(&queue, next_node);
+			queue_push(&queue, (next_dir << 8) | next_node);
 			closed[next_node] = 1;
 
 			h[next_node] = h[node] + 1;
@@ -49,9 +51,10 @@ void init_h_func_to_goal()
 {
 	for (int i = 0; i < 4; i++)
 	{
+		int dir = direction[0][i];
 		int node = goal_node[i];
 
-		queue_push(&queue, (0xf << 8) | node);
+		queue_push(&queue, (dir << 8) | node);
 		closed[node] = 1;
 		h[node] = 0;
 	}
@@ -88,7 +91,7 @@ void init_bfs_algo()
 	cost[start_node] = 0;
 }
 
-int a_star_algo_to_goal()
+int a_star_algo_to_goal(int search_flag)
 {
 	int i, temp, node, dir, next_node, next_dir, start_node = pq.node[0];
 
@@ -115,8 +118,11 @@ int a_star_algo_to_goal()
 			//if (next_node < 0 || next_node >= MAP_SIZE)
 				continue;
 
+			if (search_flag == FALSE && visit[next_node] == 0)
+				continue;
+
 			// 목표에서부터 탐색하기 때문에 너머의 벽도 확인해야함
-			if (map[next_node].all & direction[dir >> 1][CONVERT_DIRTECTION_INDEX(i)])
+			if (map[next_node].all & oppo_direction[dir >> 1][i])
 				continue;
 
 			if (g[next_node] > g[node])
@@ -173,10 +179,10 @@ int search_with_bfs_to_home(int search_flag)
 				{
 					wall_know_cnt++;
 
-					if (map[next_node].all & direction[dir >> 1][CONVERT_DIRTECTION_INDEX(i)])
+					if (map[next_node].all & oppo_direction[dir >> 1][i])
 						visit_node.all |= next_dir;
 				}
-				else if (map[next_node].all & direction[dir >> 1][CONVERT_DIRTECTION_INDEX(i)])
+				else if (map[next_node].all & oppo_direction[dir >> 1][i])
 				{
 					wall_know_cnt++;
 					outside_cnt++;
@@ -201,8 +207,10 @@ int search_with_bfs_to_home(int search_flag)
 		}
 		else if (node == HOME)
 		{
-			home_flag == TRUE;
-			break;
+			home_flag = TRUE;
+
+			if (search_flag == FALSE)
+				break;
 		}
 		
 		for (i = 0; i < 4; i++)
@@ -214,12 +222,12 @@ int search_with_bfs_to_home(int search_flag)
 
 			next_node = node + coord_diff[dir >> 1][i];
 
-			//if (next_node < 0 || next_node >= MAP_SIZE || closed[next_node] == 1)
-			if (next_node < 0 || next_node >= MAP_SIZE)
+			if (next_node < 0 || next_node >= MAP_SIZE || closed[next_node] == 1)
+			//if (next_node < 0 || next_node >= MAP_SIZE)
 				continue;
 
 			// 목표에서부터 탐색하기 때문에 너머의 벽도 확인해야함
-			if (map[next_node].all & direction[dir >> 1][CONVERT_DIRTECTION_INDEX(i)])
+			if (map[next_node].all & oppo_direction[dir >> 1][i])
 				continue;
 
 			if (cost[next_node] > cost[node])
@@ -276,7 +284,7 @@ void calculate_cost_to_goal()
 	g[robot.pos] = 0;
 
 	init_a_star_algo();
-	queue_the_path(a_star_algo_to_goal());
+	queue_the_path(a_star_algo_to_goal(TRUE));
 }
 
 void calculate_cost_to_home()

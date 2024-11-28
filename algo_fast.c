@@ -29,7 +29,7 @@ static int _compute_straight_way_cost(int past, int start)
 			continue;
 
 		// over the wall, wall exist
-		if (map[next_node].all & direction[dir << 1][CONVERT_DIRTECTION_INDEX(i)])
+		if (map[next_node].all & oppo_direction[dir >> 1][i])
 			continue;
 
 		queue_push(&qs, (curr_node << 16) | (dir << 8) | next_node);
@@ -65,7 +65,7 @@ static int _compute_straight_way_cost(int past, int start)
 				continue;
 
 			// over the wall, wall exist
-			if (map[next_node].all & direction[dir << 1][CONVERT_DIRTECTION_INDEX(i)])
+			if (map[next_node].all & oppo_direction[dir >> 1][i])
 				continue;
 
 			queue_push(&qs, (curr_node << 16) | (dir << 8) | next_node);
@@ -115,7 +115,7 @@ static void _heuristics_func_to_goal()
 				continue;
 
 			// 목표에서부터 탐색하기 때문에 너머의 벽도 확인해야함
-			if (map[next_node].all & direction[dir << 1][CONVERT_DIRTECTION_INDEX(i)])
+			if (map[next_node].all & oppo_direction[dir >> 1][i])
 				continue;
 
 			if (h[next_node] == MAX_COST_8UL || h[next_node] < h[node])
@@ -156,7 +156,7 @@ void calculate_cost_to_fast_goal()
 	g[robot.pos] = 0;
 
 	init_a_star_algo();
-	queue_the_path(a_star_algo_to_goal());
+	queue_the_path(a_star_algo_to_goal(FALSE));
 }
 
 void calculate_cost_to_fast_home()
