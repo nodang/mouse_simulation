@@ -34,10 +34,19 @@ static void _set_array()
 		{MINUS_X, PLUS_Y, MINUS_Y, PLUS_X}
 	};
 
+	int _oppo_coord_diff[5][4] = {
+		{MINUS_Y, MINUS_X, PLUS_X, PLUS_Y},
+		{MINUS_X, PLUS_Y, MINUS_Y, PLUS_X},
+		{PLUS_Y, PLUS_X, MINUS_X, MINUS_Y},
+		{0, 0, 0, 0},
+		{PLUS_X, MINUS_Y, PLUS_Y, MINUS_X},
+	};
+
 	//memcpy(diff, _coord_diff[0], sizeof(diff));
 	memcpy(direction, _direction, sizeof(direction));
 	memcpy(oppo_direction, _oppo_direction, sizeof(oppo_direction));
-	memcpy(coord_diff, _coord_diff, sizeof(direction));
+	memcpy(coord_diff, _coord_diff, sizeof(coord_diff));
+	memcpy(oppo_coord_diff, _oppo_coord_diff, sizeof(oppo_coord_diff));
 }
 
 static void _init(FILE* fp)

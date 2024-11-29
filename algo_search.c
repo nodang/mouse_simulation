@@ -152,6 +152,7 @@ int search_with_bfs_to_home(int search_flag)
 		node = temp & 0xff;
 		dir = (temp >> 8) & 0xff;
 
+		// 집 가기 전에 들를 곳
 		if (search_flag == TRUE && visit[node] == 0)
 		{
 			home_flag = FALSE;
@@ -205,29 +206,33 @@ int search_with_bfs_to_home(int search_flag)
 				return node;
 #endif
 		}
+		// 집가는 길은 일단 저장
 		else if (node == HOME)
 		{
 			home_flag = TRUE;
 
+			// fast run 이면 집에 멀리 안 돌아가
 			if (search_flag == FALSE)
 				break;
 		}
 		
+		// 가까운 곳 우선
 		for (i = 0; i < 4; i++)
 		{
-			next_dir = direction[dir >> 1][i];
+			// 반대 방향부터 하는 이유는 직진 우선이 아니기 때문
+			next_dir = oppo_direction[dir >> 1][i];
 
 			if (map[node].all & next_dir)
 				continue;
 
-			next_node = node + coord_diff[dir >> 1][i];
+			next_node = node + oppo_coord_diff[dir >> 1][i];
 
 			if (next_node < 0 || next_node >= MAP_SIZE || closed[next_node] == 1)
 			//if (next_node < 0 || next_node >= MAP_SIZE)
 				continue;
 
 			// 목표에서부터 탐색하기 때문에 너머의 벽도 확인해야함
-			if (map[next_node].all & oppo_direction[dir >> 1][i])
+			if (map[next_node].all & direction[dir >> 1][i])
 				continue;
 
 			if (cost[next_node] > cost[node])
